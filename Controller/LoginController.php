@@ -9,45 +9,70 @@
 namespace GroupOrder\Controller;
 
 
+use GroupOrder\Form\SubCustomerForm;
 use GroupOrder\Form\SubCustomerLoginForm;
+use GroupOrder\GroupOrder;
 use GroupOrder\Model\GroupOrderSubCustomer;
 use GroupOrder\Model\GroupOrderSubCustomerQuery;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Thelia\Controller\Front\BaseFrontController;
+use Thelia\Core\Event\Customer\CustomerLoginEvent;
+use Thelia\Core\Event\TheliaEvents;
+use Thelia\Core\HttpFoundation\Request;
+use Thelia\Core\Template\ParserContext;
+use Thelia\Core\Translation\Translator;
 use Thelia\Tools\URL;
+use Symfony\Component\Routing\Annotation\Route;
 
+
+#[Route("", name: "group_order_log_")]
 class LoginController extends BaseFrontController
 {
-
-    public function login()
+    #[Route("/login/sub-customer", name: "login")]
+    public function login(Request $request, ParserContext $parserContext): RedirectResponse|Response
     {
-        try {
-            $form = $this->validateForm(new SubCustomerLoginForm($this->getRequest()));
+        $form = $this->createForm(SubCustomerLoginForm::getName());
 
-            $login = $form->get("login")->getData();
-            $password = $form->get("password")->getData();
+        try {
+            $data = $this->validateForm($form)->getData();
+
+            $login = $data['login'];
+            $password = $data['password'];
 
             /** @var GroupOrderSubCustomer $subCustomer */
             if ($subCustomer = GroupOrderSubCustomerQuery::create()->filterByLogin($login)->findOne()) {
                 if (password_verify($password, $subCustomer->getPassword())) {
-
                     $mainCustomer = $subCustomer->getGroupOrderMainCustomer();
 
-                    $this->getRequest()->getSession()->set("GroupOrderLoginSubCustomer", $subCustomer->getId());
-                    $this->getRequest()->getSession()->set("GroupOrderMainCustomer", $mainCustomer->getId());
+                    $request->getSession()->set("GroupOrderLoginSubCustomer", $subCustomer->getId());
+                    $request->getSession()->set("GroupOrderMainCustomer", $mainCustomer->getId());
 
                     return $this->generateRedirect(URL::getInstance()->absoluteUrl(""));
                 }
             }
+
+            Throw new \Exception(Translator::getInstance()->trans("Login or password incorrect", [], GroupOrder::DOMAIN_NAME));
         } catch (\Exception $e) {
-            return $this->generateRedirect(URL::getInstance()->absoluteUrl("/login"));
+            $error_message = $e->getMessage();
         }
-        return $this->generateRedirect(URL::getInstance()->absoluteUrl("/login"));
+
+        $form->setErrorMessage($error_message);
+        $parserContext
+            ->addForm($form)
+            ->setGeneralError($error_message)
+        ;
+
+        return $this->generateErrorRedirect($form);
     }
 
-    public function logout()
+    #[Route("/logout/sub-customer", name: "logout")]
+    public function logout(Request $request): RedirectResponse|Response
     {
-        $this->getRequest()->getSession()->set("GroupOrderLoginSubCustomer", null);
-        $this->getRequest()->getSession()->set("GroupOrderMainCustomer", null);
+        $request->getSession()->set("GroupOrderLoginSubCustomer", null);
+        $request->getSession()->set("GroupOrderMainCustomer", null);
 
         return $this->generateRedirect(URL::getInstance()->absoluteUrl(""));
     }

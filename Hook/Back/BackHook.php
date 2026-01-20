@@ -14,7 +14,7 @@ use Thelia\Core\Hook\BaseHook;
 
 class BackHook extends BaseHook
 {
-    public function customerEditJs(HookRenderEvent $event)
+    public function customerEditJs(HookRenderEvent $event): void
     {
         $event->add($this->render('customerEditJs.html'));
     }

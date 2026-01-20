@@ -18,7 +18,7 @@ use Thelia\Form\BaseForm;
 
 class SubCustomerLoginForm extends BaseForm
 {
-    protected function buildForm()
+    protected function buildForm(): void
     {
         $this->getFormBuilder()
             ->add("login", TextType::class, array(
@@ -43,7 +43,7 @@ class SubCustomerLoginForm extends BaseForm
             ));
     }
 
-    public function getName()
+    public static function getName(): string
     {
         return 'group_order_sub_customer_login';
     }

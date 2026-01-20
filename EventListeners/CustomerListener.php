@@ -12,41 +12,38 @@ namespace GroupOrder\EventListeners;
 use GroupOrder\GroupOrder;
 use GroupOrder\Model\GroupOrderMainCustomer;
 use GroupOrder\Model\GroupOrderMainCustomerQuery;
+use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraints\Callback;
 use Thelia\Core\Event\Customer\CustomerCreateOrUpdateEvent;
 use Thelia\Core\Event\TheliaEvents;
 use Thelia\Core\Event\TheliaFormEvent;
-use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\Translation\Translator;
 
 class CustomerListener implements EventSubscriberInterface
 {
-
-    /** @var Request $request */
-    protected $request;
-
     const MAIN_CUSTOMER_CHECKBOX = "main_customer_checkbox";
 
-    public function __construct(Request $request)
+    public function __construct(protected RequestStack $requestStack)
     {
-        $this->request = $request;
     }
 
-    public function getRequest()
+    public function getRequest(): Request
     {
-        return $this->request;
+        return $this->requestStack->getCurrentRequest();
     }
 
-    public function addMainCustomerCheckBox(TheliaFormEvent $event)
+    public function addMainCustomerCheckBox(TheliaFormEvent $event): void
     {
         $event->getForm()->getFormBuilder()->add(
             self::MAIN_CUSTOMER_CHECKBOX,
             CheckboxType::class,
             [
                 'constraints' => [
-                    new Callback(['methods' => [[$this, 'setIsMainCustomer']]])
+                    new Callback([$this, 'setIsMainCustomer'])
                 ],
                 'required' => false,
                 'label' => Translator::getInstance()->trans(
@@ -61,9 +58,10 @@ class CustomerListener implements EventSubscriberInterface
 
     }
 
-    public function setIsMainCustomer($value)
+    public function setIsMainCustomer($value): void
     {
         $this->getRequest()->getSession()->set(self::MAIN_CUSTOMER_CHECKBOX, null);
+
         if ($value) {
             $this->getRequest()->getSession()->set(self::MAIN_CUSTOMER_CHECKBOX, $value);
         }
@@ -71,9 +69,9 @@ class CustomerListener implements EventSubscriberInterface
 
     /**
      * @param CustomerCreateOrUpdateEvent $event
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws PropelException
      */
-    public function processMainCustomerCheckBox(CustomerCreateOrUpdateEvent $event)
+    public function processMainCustomerCheckBox(CustomerCreateOrUpdateEvent $event): void
     {
         if ($event->hasCustomer()) {
             $isMainCustomer = $this->getRequest()->getSession()->get(self::MAIN_CUSTOMER_CHECKBOX);
@@ -98,7 +96,7 @@ class CustomerListener implements EventSubscriberInterface
     }
 
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             TheliaEvents::FORM_BEFORE_BUILD . ".thelia_customer_create" => ['addMainCustomerCheckBox', 128],

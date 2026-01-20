@@ -19,35 +19,31 @@ use GroupOrder\Model\GroupOrderQuery;
 use GroupOrder\Model\GroupOrderSubCustomer;
 use GroupOrder\Model\GroupOrderSubOrder;
 use GroupOrder\Model\GroupOrderSubOrderQuery;
-use Symfony\Component\DependencyInjection\Container;
+use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Core\Event\Cart\CartEvent;
 use Thelia\Core\Event\Order\OrderProductEvent;
 use Thelia\Core\Event\TheliaEvents;
-use Thelia\Core\HttpFoundation\Request;
-use Thelia\Model\CartItem;
 use Thelia\Model\CartItemQuery;
 
 class CartListener implements EventSubscriberInterface
 {
-    /** @var Container $container */
-    protected $request;
-
-    public function __construct(Request $request)
+    public function __construct(protected RequestStack $requestStack)
     {
-        $this->request = $request;
     }
 
-    public function getRequest()
+    public function getRequest(): Request
     {
-        return $this->request;
+        return $this->requestStack->getCurrentRequest();
     }
 
     /**
      * @param CartEvent $event
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws PropelException
      */
-    public function isNew(CartEvent $event)
+    public function isNew(CartEvent $event): void
     {
         if ($subCustomerId = $this->getRequest()->getSession()->get("GroupOrderSelectedSubCustomer")) {
 
@@ -59,14 +55,15 @@ class CartListener implements EventSubscriberInterface
                 ->filterByProductSaleElementsId($event->getProductSaleElementsId())
                 ->find();
 
-            $foundItemsIds = array_map(static function($item) {return $item->getId();}, $foundItems);
+            if (!$foundItems) {
+                $foundItemsIds = array_map(static function($item) {return $item->getId();}, $foundItems);
 
-            if ($foundItemsIds) {
-                $groupOrderCartItem = GroupOrderCartItemQuery::create()->filterBySubCustomerId($subCustomerId)->filterByCartItemId($foundItemsIds)->findOne();
+                if ($foundItemsIds) {
+                    $groupOrderCartItem = GroupOrderCartItemQuery::create()->filterBySubCustomerId($subCustomerId)->filterByCartItemId($foundItemsIds)->findOne();
+                }
             }
 
             if ($groupOrderCartItem) {
-                /** @var GroupOrderCartItem $groupOrderCartItem */
                 $groupOrderCartItem->getCartItem()->addQuantity($event->getQuantity())->save();
 
                 $event->stopPropagation();
@@ -77,9 +74,9 @@ class CartListener implements EventSubscriberInterface
 
     /**
      * @param CartEvent $event
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws PropelException
      */
-    public function addItem(CartEvent $event)
+    public function addItem(CartEvent $event): void
     {
         if ($subCustomerId = $this->getRequest()->getSession()->get("GroupOrderSelectedSubCustomer")) {
             $groupOrderCartItem = new GroupOrderCartItem();
@@ -92,9 +89,9 @@ class CartListener implements EventSubscriberInterface
 
     /**
      * @param OrderProductEvent $event
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws PropelException
      */
-    public function addOrderItem(OrderProductEvent $event)
+    public function addOrderItem(OrderProductEvent $event): void
     {
         /** @var GroupOrderMainCustomer $mainCustomer */
         if ($mainCustomer = $this->getRequest()->getSession()->get("CurrentUserIsMainCustomer")) {
@@ -137,23 +134,21 @@ class CartListener implements EventSubscriberInterface
 
     /**
      * @param CartEvent $event
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws PropelException
      */
-    public function deleteItem(CartEvent $event)
+    public function deleteItem(CartEvent $event): void
     {
         $customerId = null;
         if ($customer = $this->getRequest()->getSession()->getCustomerUser()) {
             $customerId = $customer->getId();
         }
-        if ($mainCustomer = GroupOrderMainCustomerQuery::create()->filterByCustomerId($customerId)->findOne()) {
+        if (GroupOrderMainCustomerQuery::create()->filterByCustomerId($customerId)->findOne()) {
             $cartItem = GroupOrderCartItemQuery::create()->filterByCartItemId($event->getCartItemId());
-            if ($cartItem) {
-                $cartItem->delete();
-            }
+            $cartItem?->delete();
         }
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             TheliaEvents::CART_ADDITEM => [

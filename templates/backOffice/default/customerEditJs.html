@@ -1,4 +1,4 @@
-{loop type="group_order_main_customer" name="main_customer_loop" customer_id=$customer_id active=true}
+{loop type="group_order_main_customer" name="main_customer_loop" customer_id=$customer_id|default:null active=true}
     {assign "isMainCustomer" 1}
 {/loop}
 
@@ -7,8 +7,8 @@
 {form_field field="main_customer_checkbox"}
     <div class="form-group">
         <div class="checkbox">
-            <label for="{$label_attr.for}" class="control-label">
-                <input type="checkbox" name="{$name}" id="{$id}" {if $isMainCustomer}checked{/if} >{$label}
+            <label for="{$label_attr.for|default:null}" class="control-label">
+                <input type="checkbox" name="{$name|default:null}" id="{$id|default:null}" {if $isMainCustomer|default:null}checked{/if} >{$label|default:null}
             </label>
         </div>
     </div>

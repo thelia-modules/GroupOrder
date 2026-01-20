@@ -4,32 +4,4 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <route id="group_order_create_sub_customer" path="/GroupOrder/SubCustomer/CreateOrUpdate">
-        <default key="_controller">GroupOrder\Controller\CustomerController::createOrUpdateSubCustomer</default>
-    </route>
-
-    <route id="group_order_update_sub_customer" path="/GroupOrder/SubCustomer/CreateOrUpdate/{id}">
-        <default key="_controller">GroupOrder\Controller\CustomerController::createOrUpdateSubCustomer</default>
-    </route>
-
-    <route id="group_order_get_sub_customer_cart" path="/module/groupOrder/getSubCustomerCart">
-        <default key="_controller">GroupOrder\Controller\CustomerController::getSubCustomerCart</default>
-    </route>
-
-    <route id="group_order_home" path="/module/groupOrder/goHome">
-        <default key="_controller">GroupOrder\Controller\CustomerController::goHome</default>
-    </route>
-
-    <route id="group_order_sub_customer_login" path="/login/sub-customer">
-        <default key="_controller">GroupOrder\Controller\LoginController::login</default>
-    </route>
-
-    <route id="group_order_sub_customer_logout" path="/logout/sub-customer">
-        <default key="_controller">GroupOrder\Controller\LoginController::logout</default>
-    </route>
-
-    <route id="group_order_sub_customer_validate_cart" path="/cart/sub-customer">
-        <default key="_controller">GroupOrder\Controller\CartController::validate</default>
-    </route>
-
 </routes>

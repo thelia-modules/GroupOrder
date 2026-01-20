@@ -1,12 +1,14 @@
+{ifloop rel="sub_customer_sticky_window"}
 <div class="CartManagerPreview">
-    {loop type="group_order_sub_customer" name="sub_customer_sticky_window" main_customer=$mainCustomerId}
+    {loop type="group_order_sub_customer" name="sub_customer_sticky_window" main_customer=$mainCustomerId|default:null}
     <div class="CartManagerPreview-user">
-        <label for="sub-user{$ID}" class="CartManagerPreview-user-name">
-            <div>{$FIRSTNAME} {$LASTNAME}</div>
+        <label for="sub-user{$ID|default:null}" class="CartManagerPreview-user-name">
+            <div>{$FIRSTNAME|default:null} {$LASTNAME|default:null}</div>
         </label>
-        <input type="radio" name="user" id="sub-user{$ID}" class="select_sub_order" data-id="{$ID}"/>
+        <input type="radio" name="user" id="sub-user{$ID|default:null}" class="select_sub_order" data-id="{$ID|default:null}"/>
         <ul class="CartManagerPreview-user-cart">
         </ul>
     </div>
     {/loop}
 </div>
+{/ifloop}

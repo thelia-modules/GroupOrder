@@ -18,9 +18,14 @@ use Thelia\Core\Template\Element\PropelSearchLoopInterface;
 use Thelia\Core\Template\Loop\Argument\Argument;
 use Thelia\Core\Template\Loop\Argument\ArgumentCollection;
 
+/**
+ * @method getId()
+ * @method getMainCustomer()
+ * @method getLogin()
+ */
 class SubCustomerLoop extends BaseLoop implements PropelSearchLoopInterface
 {
-    protected function getArgDefinitions()
+    protected function getArgDefinitions(): ArgumentCollection
     {
         return new ArgumentCollection(
             Argument::createIntListTypeArgument('id'),
@@ -29,7 +34,7 @@ class SubCustomerLoop extends BaseLoop implements PropelSearchLoopInterface
         );
     }
 
-    public function buildModelCriteria()
+    public function buildModelCriteria(): GroupOrderSubCustomerQuery|\Propel\Runtime\ActiveQuery\ModelCriteria
     {
         $query = GroupOrderSubCustomerQuery::create();
 
@@ -48,7 +53,7 @@ class SubCustomerLoop extends BaseLoop implements PropelSearchLoopInterface
         return $query;
     }
 
-    public function parseResults(LoopResult $loopResult)
+    public function parseResults(LoopResult $loopResult): LoopResult
     {
         /** @var GroupOrderSubCustomer $subCustomer */
         foreach ($loopResult->getResultDataCollection() as $subCustomer) {

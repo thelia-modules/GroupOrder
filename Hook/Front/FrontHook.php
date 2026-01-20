@@ -11,7 +11,6 @@ namespace GroupOrder\Hook\Front;
 
 use GroupOrder\GroupOrder;
 use GroupOrder\Model\GroupOrderMainCustomer;
-use GroupOrder\Model\GroupOrderMainCustomerQuery;
 use GroupOrder\Model\GroupOrderSubCustomerQuery;
 use Thelia\Core\Event\Hook\HookRenderBlockEvent;
 use Thelia\Core\Event\Hook\HookRenderEvent;
@@ -20,12 +19,12 @@ use Thelia\Core\Translation\Translator;
 
 class FrontHook extends BaseHook
 {
-    public function onRegisterFormBottom(HookRenderEvent $event)
+    public function onRegisterFormBottom(HookRenderEvent $event): void
     {
         $event->add($this->render('onRegisterFormBottom.html'));
     }
 
-    public function onAccountAdditional(HookRenderBlockEvent $event)
+    public function onAccountAdditional(HookRenderBlockEvent $event): void
     {
         /** @var GroupOrderMainCustomer $mainCustomer */
         if ($mainCustomer = $this->getRequest()->getSession()->get("CurrentUserIsMainCustomer")) {
@@ -39,12 +38,12 @@ class FrontHook extends BaseHook
         }
     }
 
-    public function onAccountJavaScript(HookRenderEvent $event)
+    public function onAccountJavaScript(HookRenderEvent $event): void
     {
         $event->add($this->render("includes/account-group-order-js.html"));
     }
 
-    public function onMainBodyBottom(HookRenderEvent $event)
+    public function onMainBodyBottom(HookRenderEvent $event): void
     {
         /** @var GroupOrderMainCustomer $mainCustomer */
         if ($mainCustomer = $this->getRequest()->getSession()->get("CurrentUserIsMainCustomer")) {
@@ -55,13 +54,13 @@ class FrontHook extends BaseHook
         }
     }
 
-    public function onMainHeadBottom(HookRenderEvent $event)
+    public function onMainHeadBottom(HookRenderEvent $event): void
     {
         $css = $this->addCSS('assets/group_order.css');
         $event->add($css);
     }
 
-    public function onMainJavascriptInitialization(HookRenderEvent $event)
+    public function onMainJavascriptInitialization(HookRenderEvent $event): void
     {
         $subCustomerId = $this->getRequest()->getSession()->get("GroupOrderSelectedSubCustomer");
         $subCustomerLogin = $this->getRequest()->getSession()->get("GroupOrderLoginSubCustomer");
@@ -74,7 +73,7 @@ class FrontHook extends BaseHook
         ]));
     }
 
-    public function onLoginMainBottom(HookRenderEvent $event)
+    public function onLoginMainBottom(HookRenderEvent $event): void
     {
         $event->add($this->render("sub-customer-login.html"));
     }

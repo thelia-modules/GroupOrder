@@ -11,6 +11,7 @@ namespace GroupOrder\Loop;
 
 use GroupOrder\Model\GroupOrderSubOrder;
 use GroupOrder\Model\GroupOrderSubOrderQuery;
+use Propel\Runtime\Exception\PropelException;
 use Thelia\Core\Template\Element\BaseLoop;
 use Thelia\Core\Template\Element\LoopResult;
 use Thelia\Core\Template\Element\LoopResultRow;
@@ -22,9 +23,14 @@ use Thelia\Model\ProductSaleElementsQuery;
 use Thelia\TaxEngine\Calculator;
 use Thelia\Tools\MoneyFormat;
 
+/**
+ * @method getId()
+ * @method getSubCustomer()
+ * @method getGroupOrder()
+ */
 class SubOrderLoop extends BaseLoop implements PropelSearchLoopInterface
 {
-    protected function getArgDefinitions()
+    protected function getArgDefinitions(): ArgumentCollection
     {
         return new ArgumentCollection(
             Argument::createIntListTypeArgument('id'),
@@ -33,7 +39,7 @@ class SubOrderLoop extends BaseLoop implements PropelSearchLoopInterface
         );
     }
 
-    public function buildModelCriteria()
+    public function buildModelCriteria(): GroupOrderSubOrderQuery|\Propel\Runtime\ActiveQuery\ModelCriteria
     {
         $query = GroupOrderSubOrderQuery::create();
 
@@ -55,9 +61,9 @@ class SubOrderLoop extends BaseLoop implements PropelSearchLoopInterface
     /**
      * @param LoopResult $loopResult
      * @return LoopResult
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws PropelException
      */
-    public function parseResults(LoopResult $loopResult)
+    public function parseResults(LoopResult $loopResult): LoopResult
     {
         /** @var GroupOrderSubOrder $subOrder */
         foreach ($loopResult->getResultDataCollection() as $subOrder){

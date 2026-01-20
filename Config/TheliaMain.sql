@@ -13,9 +13,9 @@ CREATE TABLE `group_order_main_customer`
 (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `customer_id` INTEGER NOT NULL,
-    `active` INTEGER,
+    `active` TINYINT DEFAULT 1,
     PRIMARY KEY (`id`),
-    INDEX `FI_group_order_customer_id` (`customer_id`),
+    INDEX `fi_group_order_customer_id` (`customer_id`),
     CONSTRAINT `fk_group_order_customer_id`
         FOREIGN KEY (`customer_id`)
         REFERENCES `customer` (`id`)
@@ -35,8 +35,8 @@ CREATE TABLE `group_order`
     `main_customer_id` INTEGER NOT NULL,
     `order_id` INTEGER NOT NULL,
     PRIMARY KEY (`id`),
-    INDEX `FI_group_order_main_customer_id` (`main_customer_id`),
-    INDEX `FI_group_order_order_id` (`order_id`),
+    INDEX `fi_group_order_main_customer_id` (`main_customer_id`),
+    INDEX `fi_group_order_order_id` (`order_id`),
     CONSTRAINT `fk_group_order_main_customer_id`
         FOREIGN KEY (`main_customer_id`)
         REFERENCES `group_order_main_customer` (`id`)
@@ -71,8 +71,10 @@ CREATE TABLE `group_order_sub_customer`
     `login` VARCHAR(255) NOT NULL,
     `password` VARCHAR(255) NOT NULL,
     PRIMARY KEY (`id`),
-    INDEX `FI_group_order_sub_main_id` (`main_customer_id`),
-    INDEX `FI_group_order_country_id` (`country_id`),
+    UNIQUE INDEX `group_order_email_unique` (`email`),
+    UNIQUE INDEX `group_order_login_unique` (`login`),
+    INDEX `fi_group_order_sub_main_id` (`main_customer_id`),
+    INDEX `fi_group_order_country_id` (`country_id`),
     CONSTRAINT `fk_group_order_sub_main_id`
         FOREIGN KEY (`main_customer_id`)
         REFERENCES `group_order_main_customer` (`id`)
@@ -97,8 +99,8 @@ CREATE TABLE `group_order_sub_order`
     `sub_customer_id` INTEGER NOT NULL,
     `group_order_id` INTEGER NOT NULL,
     PRIMARY KEY (`id`),
-    INDEX `FI_group_order_sub_order_sub_customer_id` (`sub_customer_id`),
-    INDEX `FI_group_order_sub_order_id` (`group_order_id`),
+    INDEX `fi_group_order_sub_order_sub_customer_id` (`sub_customer_id`),
+    INDEX `fi_group_order_sub_order_id` (`group_order_id`),
     CONSTRAINT `fk_group_order_sub_order_sub_customer_id`
         FOREIGN KEY (`sub_customer_id`)
         REFERENCES `group_order_sub_customer` (`id`)
@@ -123,8 +125,8 @@ CREATE TABLE `group_order_product`
     `sub_order_id` INTEGER NOT NULL,
     `order_product_id` INTEGER NOT NULL,
     PRIMARY KEY (`id`),
-    INDEX `FI_group_order_product_sub_order_id` (`sub_order_id`),
-    INDEX `FI_group_order_order_product_id` (`order_product_id`),
+    INDEX `fi_group_order_product_sub_order_id` (`sub_order_id`),
+    INDEX `fi_group_order_order_product_id` (`order_product_id`),
     CONSTRAINT `fk_group_order_product_sub_order_id`
         FOREIGN KEY (`sub_order_id`)
         REFERENCES `group_order_sub_order` (`id`)
@@ -149,8 +151,8 @@ CREATE TABLE `group_order_cart_item`
     `sub_customer_id` INTEGER NOT NULL,
     `cart_item_id` INTEGER NOT NULL,
     PRIMARY KEY (`id`),
-    INDEX `FI_group_order_cart_sub_customer_id` (`sub_customer_id`),
-    INDEX `FI_group_order_cart_cart_item_id` (`cart_item_id`),
+    INDEX `fi_group_order_cart_sub_customer_id` (`sub_customer_id`),
+    INDEX `fi_group_order_cart_cart_item_id` (`cart_item_id`),
     CONSTRAINT `fk_group_order_cart_sub_customer_id`
         FOREIGN KEY (`sub_customer_id`)
         REFERENCES `group_order_sub_customer` (`id`)

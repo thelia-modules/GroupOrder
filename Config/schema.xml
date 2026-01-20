@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<database defaultIdMethod="native" name="thelia"
+<database defaultIdMethod="native" name="TheliaMain"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="../../../vendor/propel/propel/resources/xsd/database.xsd" >
 
@@ -49,6 +49,14 @@
         <foreign-key foreignTable="country" name="fk_group_order_country_id" onDelete="RESTRICT" onUpdate="RESTRICT">
             <reference foreign="id" local="country_id" />
         </foreign-key>
+
+        <unique name="group_order_email_unique">
+            <unique-column name="email" />
+        </unique>
+
+        <unique name="group_order_login_unique">
+            <unique-column name="login" />
+        </unique>
     </table>
 
     <table name="group_order_sub_order" namespace="GroupOrder\Model">

@@ -11,12 +11,13 @@ namespace GroupOrder\Smarty\Plugins;
 
 use GroupOrder\Model\GroupOrderCartItemQuery;
 use GroupOrder\Model\GroupOrderProductQuery;
+use Propel\Runtime\Exception\PropelException;
 use TheliaSmarty\Template\AbstractSmartyPlugin;
 use TheliaSmarty\Template\SmartyPluginDescriptor;
 
 class GroupOrderSubCustomer extends AbstractSmartyPlugin
 {
-    public function getPluginDescriptors()
+    public function getPluginDescriptors(): array
     {
         return [
             new SmartyPluginDescriptor('function', 'groupOrderSubCustomerName', $this, 'groupOrderSubCustomerName'),
@@ -26,9 +27,9 @@ class GroupOrderSubCustomer extends AbstractSmartyPlugin
     /**
      * @param $params
      * @param $smarty
-     * @throws \Propel\Runtime\Exception\PropelException
+     * @throws PropelException
      */
-    public function groupOrderSubCustomerName($params, $smarty)
+    public function groupOrderSubCustomerName($params, $smarty): void
     {
         $cartItemId = $params["item_id"];
 

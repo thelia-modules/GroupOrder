@@ -1,80 +1,137 @@
 <script>
-    {if $selectedSubCustomerId}
-        selectSubCustomer({$selectedSubCustomerId}, "{$subCustomerTitle}");
-    {/if}
-    
-    {if $loginSubCustomerId}
-        setSubCustomerLayout();
-    {/if}
+    (function () {
+        // --- Helper for creating HTML from string ---
+        const createElementFromHTML = (htmlString) => {
+            const div = document.createElement('div');
+            div.innerHTML = htmlString.trim();
+            return div.firstChild;
+        };
 
+        const translationEmpty = "{intl l='Empty' d='grouporder.fo.default'}";
 
-    $(".select_sub_order").on("click", function () {
-        const subCustomerId = $(this).attr("data-id");
+        // --- Smarty Variables ---
+        {if $selectedSubCustomerId}
+            selectSubCustomer({$selectedSubCustomerId}, "{$subCustomerTitle}");
+        {/if}
 
-        selectSubCustomer(subCustomerId, $(this).text());
-    });
+        {if $loginSubCustomerId}
+            setSubCustomerLayout();
+        {/if}
 
-    $("#group-order-home").on("click", function () {
-        $("#group-order-cart-title").hide();
-        $("#group-order-cart-body").hide();
-        $("#group-order-main-body").show();
-        $("#group-order-main-title").show();
+        {literal}
+        // --- Event Listeners ---
+        document.querySelectorAll(".select_sub_order").forEach(el => {
+            el.addEventListener("click", function () {
+                const subCustomerId = this.getAttribute("data-id");
+                if (!subCustomerId) return;
+                selectSubCustomer(subCustomerId, this.textContent);
+            });
+        });
 
-        $.ajax('/module/groupOrder/goHome')
-    });
+        const homeBtn = document.getElementById("group-order-home");
+        if (homeBtn) {
+            homeBtn.addEventListener("click", function () {
+                const cartTitle = document.getElementById("group-order-cart-title");
+                const cartBody = document.getElementById("group-order-cart-body");
+                const mainBody = document.getElementById("group-order-main-body");
+                const mainTitle = document.getElementById("group-order-main-title");
 
-    function selectSubCustomer(subCustomerId, title) {
-        $("#group-order-main-title").hide();
-        $("#group-order-main-body").hide();
-        $("#group-order-cart-title").show();
-        $("#group-order-cart-body").show();
-        if(title){
-            $("#sub-customer-name").text(title);
+                if (cartTitle) cartTitle.style.display = 'none';
+                if (cartBody) cartBody.style.display = 'none';
+                if (mainBody) mainBody.style.display = 'block';
+                if (mainTitle) mainTitle.style.display = 'block';
+
+                fetch('/module/groupOrder/goHome');
+            });
         }
 
-        $.getJSON('/module/groupOrder/getSubCustomerCart',{
-            sub_customer_id: subCustomerId
-        }).done(function (json) {
-            const userCart = $("#sub-user"+subCustomerId).parent().find(".CartManagerPreview-user-cart");
-            userCart.empty();
-            console.log(json);
-            json.cartItems.forEach(function (cartItem) {
-                userCart.append(
-                    "<li>" +
-                    "<div>" + cartItem.title + "</div>" +
-                    "<div>" + cartItem.price + "</div>" +
-                    "<div> x" + cartItem.quantity + "</div>" +
-                    "</li>"
-                );
-            });
-            if (json.cartItems.length === 0){
-                console.log("aaaaa");
-                userCart.append(
-                    "<li>" +
-                    "<div>" + "{intl l="Empty" d="grouporder.fo.default"}" + "</div>" +
-                    "</li>"
-                );
+        // --- Functions ---
+        function selectSubCustomer(subCustomerId, title) {
+            const mainTitle = document.getElementById("group-order-main-title");
+            const mainBody = document.getElementById("group-order-main-body");
+            const cartTitle = document.getElementById("group-order-cart-title");
+            const cartBody = document.getElementById("group-order-cart-body");
+
+            if (mainTitle) mainTitle.style.display = 'none';
+            if (mainBody) mainBody.style.display = 'none';
+            if (cartTitle) cartTitle.style.display = 'block';
+            if (cartBody) cartBody.style.display = 'block';
+
+            if (title) {
+                const titleEl = document.getElementById("sub-customer-name");
+                if (titleEl) titleEl.textContent = title;
             }
-        })
-    }
-    
-    function setSubCustomerLayout() {
-        $(".register").parent().hide();
-        const login = $(".login").parent();
 
-        $(
-            '<li>' +
-            '<a href="'+ '{url path="/logout/sub-customer"}' + '" class="logout">' + '{intl l="Logout" d="grouporder.fo.default"}' + '</a>' +
-            '</li>'
-        ).insertAfter(login);
-        login.hide();
+            // Using fetch instead of getJSON
+            fetch(`/module/groupOrder/getSubCustomerCart?sub_customer_id=${subCustomerId}`)
+                .then(response => response.json())
+                .then(json => {
+                    const subUserEl = document.getElementById("sub-user" + subCustomerId);
+                    if (!subUserEl) return;
 
+                    const userCart = subUserEl.parentElement.querySelector(".CartManagerPreview-user-cart");
+                    if (!userCart) return;
 
-        $('.table-cart tbody tr:last').hide();
-        $('.table-cart tr:last').prev().hide();
+                    userCart.innerHTML = ''; // Clear existing content
 
-        const cartNext = $('#cart').find("> .btn-primary");
-        $('<a href="{url path="/cart/sub-customer"}" class="btn btn-primary pull-right">{intl l="Validate Cart" d="grouporder.fo.default"}</a>').insertAfter(cartNext);
-        cartNext.hide();
-    }
+                    if (json.cartItems.length === 0) {
+                        userCart.appendChild(createElementFromHTML(
+                            `<li><div>${translationEmpty}</div></li>`
+                        ));
+                    } else {
+                        json.cartItems.forEach(function (cartItem) {
+                            const li = createElementFromHTML(
+                                `<li>
+                                    <div>${cartItem.title}</div>
+                                    <div>${cartItem.price}</div>
+                                    <div> x${cartItem.quantity}</div>
+                                </li>`
+                            );
+                            userCart.appendChild(li);
+                        });
+                    }
+                })
+                .catch(err => console.error('Error loading cart:', err));
+        }
+        {/literal}
+
+        function setSubCustomerLayout() {
+            // Hide register link parent
+            document.querySelectorAll(".register").forEach(el => {
+                if (el.parentElement) el.parentElement.style.display = 'none';
+            });
+
+            // Handle Login/Logout toggle
+            const loginLink = document.querySelector(".login");
+            if (loginLink && loginLink.parentElement) {
+                const loginParent = loginLink.parentElement;
+                const logoutHtml = `<li><a href="{url path="/logout/sub-customer"}" class="logout">{intl l="Logout" d="grouporder.fo.default"}</a></li>`;
+                const logoutNode = createElementFromHTML(logoutHtml);
+
+                loginParent.parentNode.insertBefore(logoutNode, loginParent.nextSibling);
+                loginParent.style.display = 'none';
+            }
+
+            // Hide specific table rows
+            const cartRows = document.querySelectorAll('.table-cart tbody tr');
+            if (cartRows.length > 0) {
+                cartRows[cartRows.length - 1].style.display = 'none'; // last row
+            }
+
+            const allTableRows = document.querySelectorAll('.table-cart tr');
+            if (allTableRows.length >= 2) {
+                allTableRows[allTableRows.length - 2].style.display = 'none'; // second to last
+            }
+
+            // Replace Cart Button
+            const cartNext = document.querySelector('#cart > .btn-primary');
+            if (cartNext) {
+                const validateBtnHtml = `<a href="{url path="/cart/sub-customer"}" class="btn btn-primary pull-right">{intl l="Validate Cart" d="grouporder.fo.default"}</a>`;
+                const validateBtn = createElementFromHTML(validateBtnHtml);
+
+                cartNext.parentNode.insertBefore(validateBtn, cartNext.nextSibling);
+                cartNext.style.display = 'none';
+            }
+        }
+    })();
 </script>

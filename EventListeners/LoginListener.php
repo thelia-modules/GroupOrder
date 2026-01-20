@@ -10,27 +10,25 @@ namespace GroupOrder\EventListeners;
 
 use GroupOrder\Model\GroupOrderMainCustomerQuery;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Core\Event\Customer\CustomerLoginEvent;
+use Thelia\Core\Event\DefaultActionEvent;
 use Thelia\Core\Event\TheliaEvents;
-use Thelia\Core\HttpFoundation\Request;
 use Thelia\Model\CartQuery;
 
 class LoginListener implements EventSubscriberInterface
 {
-    /** @var Request $request */
-    protected $request;
-
-    public function __construct(Request $request)
+    public function __construct(protected RequestStack $requestStack)
     {
-        $this->request = $request;
     }
 
-    public function getRequest()
+    public function getRequest(): Request
     {
-        return $this->request;
+        return $this->requestStack->getCurrentRequest();
     }
 
-    public function login(CustomerLoginEvent $event)
+    public function login(CustomerLoginEvent $event): void
     {
         if (GroupOrderMainCustomerQuery::create()->filterByCustomerId($event->getCustomer()->getId())->findOne() &&
             $cart = CartQuery::create()->filterByCustomerId($event->getCustomer()->getId())->findOne()) {
@@ -42,14 +40,14 @@ class LoginListener implements EventSubscriberInterface
         }
     }
 
-    public function logout(DefaultActionEvent $event)
+    public function logout(DefaultActionEvent $event): void
     {
         if ($this->getRequest()->getSession()->get('CurrentUserIsMainCustomer')){
             $this->getRequest()->getSession()->set('CurrentUserIsMainCustomer', null);
         }
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             TheliaEvents::CUSTOMER_LOGIN => ["login", 128],

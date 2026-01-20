@@ -1,21 +1,39 @@
 <script type="text/javascript">
-    $('#show_create_sub_customer').on("click", function () {
-        $("#create_sub_customer").show();
-    });
+    (function () {
+        // Show/Hide Create Sub Customer
+        const showCreateBtn = document.getElementById('show_create_sub_customer');
+        const createSubCustomerDiv = document.getElementById('create_sub_customer');
+        const hideCreateBtns = document.querySelectorAll('.hide_create_sub_customer');
 
-    $('.hide_create_sub_customer').on("click", function () {
-        $("#create_sub_customer").hide();
-    });
+        if (showCreateBtn) {
+            showCreateBtn.addEventListener('click', function () {
+                if (createSubCustomerDiv) createSubCustomerDiv.style.display = 'block';
+            });
+        }
 
-    $('.show_update_sub_customer').on("click", function () {
-        const id = $(this).attr("data-id");
-        console.log(id);
-        $("#update_sub_customer_" + id).show();
-    });
+        hideCreateBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                if (createSubCustomerDiv) createSubCustomerDiv.style.display = 'none';
+            });
+        });
 
-    $('.hide_update_sub_customer').on("click", function () {
-        const id = $(this).attr("data-id");
-        $("#update_sub_customer_" + id).hide();
-    });
+        // Show Update Sub Customer
+        document.querySelectorAll('.show_update_sub_customer').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                console.log(id);
+                const target = document.getElementById('update_sub_customer_' + id);
+                if (target) target.style.display = 'block';
+            });
+        });
 
+        // Hide Update Sub Customer
+        document.querySelectorAll('.hide_update_sub_customer').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const target = document.getElementById('update_sub_customer_' + id);
+                if (target) target.style.display = 'none';
+            });
+        });
+    })();
 </script>

@@ -11,6 +11,7 @@ namespace GroupOrder\Loop;
 
 use GroupOrder\Model\GroupOrderMainCustomer;
 use GroupOrder\Model\GroupOrderMainCustomerQuery;
+use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Thelia\Core\Template\Element\BaseLoop;
 use Thelia\Core\Template\Element\LoopResult;
 use Thelia\Core\Template\Element\LoopResultRow;
@@ -18,9 +19,15 @@ use Thelia\Core\Template\Element\PropelSearchLoopInterface;
 use Thelia\Core\Template\Loop\Argument\Argument;
 use Thelia\Core\Template\Loop\Argument\ArgumentCollection;
 
+/**
+ * @method getId()
+ * @method getSubCustomerId()
+ * @method getCustomerId()
+ * @method getActive()
+ */
 class MainCustomerLoop extends BaseLoop implements PropelSearchLoopInterface
 {
-    protected function getArgDefinitions()
+    protected function getArgDefinitions(): ArgumentCollection
     {
         return new ArgumentCollection(
             Argument::createIntListTypeArgument('id'),
@@ -30,7 +37,7 @@ class MainCustomerLoop extends BaseLoop implements PropelSearchLoopInterface
         );
     }
 
-    public function buildModelCriteria()
+    public function buildModelCriteria(): GroupOrderMainCustomerQuery|ModelCriteria
     {
         $query = GroupOrderMainCustomerQuery::create();
 
@@ -56,7 +63,7 @@ class MainCustomerLoop extends BaseLoop implements PropelSearchLoopInterface
         return $query;
     }
 
-    public function parseResults(LoopResult $loopResult)
+    public function parseResults(LoopResult $loopResult): LoopResult
     {
         /** @var GroupOrderMainCustomer $mainCustomer */
         foreach ($loopResult->getResultDataCollection() as $mainCustomer) {

@@ -1,27 +1,33 @@
 # Group Order
 
-This Module allow you to create group orders
+This Module allows you to create group orders.
 
 ## Installation
-
-### Manually
-
-* Copy the module into ```<thelia_root>/local/modules/``` directory and be sure that the name of the module is GroupOrder.
-* Activate it in your thelia administration panel
 
 ### Composer
 
 Add it in your main thelia composer.json file
 
 ```
-composer require thelia/group-order-module:~0.0.1
+composer require thelia/group-order-module:~1.0.0
 ```
 
 ## Usage
 
-During register or in back office you have the possibility to create Main Customers. A main customer can create sub-customers and can fill the cart of the sub-customer. 
+During registering or in the back office, you have the possibility to create Main Customers.
+A main customer can create multiple sub-customers.
 
-A sub-customer can connect via the login and password set by the main customer, they have restricted right, they can add items to their cart and once they decide to validate their cart, the cart is sent to the cart of the main-customer.
+A sub-customer can connect via the login and password set by the main customer.
+They have restricted right, they can add items to their cart and validate their cart.
+When a sub-customer validates his cart, the items are sent to the cart of the main customer.
+
+The main customer can see all sub-customers and their orders.
+
+## For Developers
+
+To log in as a sub customer, use the route `/login/sub-customer`.
+
+To validate your cart, use the route `/cart/sub-customer`.
 
 ## Hook
 
@@ -119,10 +125,6 @@ A sub-customer can connect via the login and password set by the main customer, 
 |$ORDER_NUMBER    | Ref of the main order |
 |$DATE    | Creation date |
 |$AMOUNT    | total price of this sub order |
-
-### Example
-
-Add a complete exemple of your loop
 
 ## Smarty plugin
 

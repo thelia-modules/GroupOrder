@@ -15,27 +15,6 @@
         <form name="group_order_sub_customer_login" class="GroupOrder\Form\SubCustomerLoginForm" />
     </forms>
 
-    <services>
-        <service id="group.order.customer.listener" class="GroupOrder\EventListeners\CustomerListener">
-            <argument type="service" id="request"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="group.order.cart.listener" class="GroupOrder\EventListeners\CartListener">
-            <argument type="service" id="request"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="group.order.login.listener" class="GroupOrder\EventListeners\LoginListener">
-            <argument type="service" id="request"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="group.order.subcustomer.smarty.plugin" class="GroupOrder\Smarty\Plugins\GroupOrderSubCustomer" scope="request">
-            <tag name="thelia.parser.register_plugin" />
-        </service>
-    </services>
-
     <hooks>
         <hook id="group_order.front.hook" class="GroupOrder\Hook\Front\FrontHook">
             <tag name="hook.event_listener" event="register.form-bottom" type="front" method="onRegisterFormBottom" />

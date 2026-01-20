@@ -6,7 +6,9 @@
     </button>
 </div>
 
-<div class="col-md-12" id="create_sub_customer" hidden>
+{$section = $smarty.get.section|default:null}
+
+<div class="col-md-12" id="create_sub_customer" {if $section=='create_sub_customer'}{else}hidden{/if} >
     {include
     file="includes/sub-customer-form.html"
     action="/GroupOrder/SubCustomer/CreateOrUpdate"
@@ -15,16 +17,16 @@
 </div>
 
 <div class="col-md-12">
-    {loop type="group_order_sub_customer" name="account_group_order_sub_customer_loop" main_customer=$mainCustomerId}
+    {loop type="group_order_sub_customer" name="account_group_order_sub_customer_loop" main_customer=$mainCustomerId|default:null}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <div class="panel-title">
-                    {$FIRSTNAME} {$LASTNAME}
-                    <button class="btn btn-primary pull-right show_update_sub_customer" data-id="{$ID}">{intl l="Edit"}</button>
+                    {$FIRSTNAME|default:null} {$LASTNAME|default:null}
+                    <button class="btn btn-primary pull-right show_update_sub_customer" data-id="{$ID|default:null}">{intl l="Edit"}</button>
                 </div>
             </div>
             <div class="panel-body table-responsive">
-                <div id="update_sub_customer_{$ID}" hidden>
+                <div id="update_sub_customer_{$ID|default:null}" {if $section=="update_sub_customer_$ID"}{else}hidden{/if}>
                     {include
                     file="includes/sub-customer-form.html"
                     action="/GroupOrder/SubCustomer/CreateOrUpdate/{$ID}"
@@ -42,11 +44,11 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {loop type="group_order_sub_order" name="sub_order_loop" sub_customer=$ID}
+                    {loop type="group_order_sub_order" name="sub_order_loop" sub_customer=$ID|default:null}
                         <tr>
-                            <td>{$ORDER_NUMBER}</td>
-                            <td>{$DATE->format('d-m-Y H:i:s')}</td>
-                            <td>{$AMOUNT}</td>
+                            <td>{$ORDER_NUMBER|default:null}</td>
+                            <td>{$DATE->format('d-m-Y H:i:s')|default:null}</td>
+                            <td>{$AMOUNT|default:null}</td>
                         </tr>
                     {/loop}
                     </tbody>
